@@ -7,7 +7,7 @@
     <meta charset="utf-8">
   </head>
   <body>
-    <div class="Prims">
+    <!-- <div class="Prims">
       <h1> Prims's Visualizer </h1>
       <div id="copyright"> <b>Created by: </b> <br><br>Wesley Coleman<br> Niko Hildenbrand <br> Nelson Leonardo Gonzalez Dantas </div>
       <p>This tool will be helpful to visualize the Prims MST Algorithm. While a graph has been provided you can generate a new graph with the number of nodes desired, by writting an input and clicking generate graph.</p>
@@ -30,6 +30,12 @@
     <label for="weight">New Weight:</label>
     <input type="text" id="weight" name="Weight"><br>
       <br>
+      <select id="algorithm" name="graphAlgo">
+        <option value="prims">prims</option>
+        <option value="boruvkas">Boruvkas</option>
+        <option value="reverseDelete">ReverseDelete</option>
+        <option value="Kargar-klein-tarjan">Karger-klein-tarjan</option>
+       </select>
     <button onclick="add_new_edge()">Update/Create Edge</button>
     
       <br>
@@ -56,8 +62,8 @@
      <script src="Prims.js"></script>
      <script src="sketch.js"></script>
     </div>   
-  </div>
-    <!-- <div class="Boruvkas">
+  </div> -->
+    <div class="Boruvkas">
       <h1> Boruvka's Visualizer </h1>
       <div id="copyright"> <b>Created by: </b> <br><br>Wesley Coleman<br> Niko Hildenbrand <br> Nelson Leonardo Gonzalez Dantas </div>
       <p>This tool will be helpful to visualize the Prims MST Algorithm. While a graph has been provided you can generate a new graph with the number of nodes desired, by writting an input and clicking generate graph.</p>
@@ -68,7 +74,7 @@
       <input type="text" id="generate_num" name="Generate Num"><br>
       <button onclick="generate()">Generate Graph</button>
       <h3> Adding Nodes </h3><h3>
-      <script src="sketch.js"></script>
+      <script src="sketchBoru.js"></script>
       <button onclick="add_new_node()">Add new node</button>
       
       </h3><h3> New/Update Edge </h3>
@@ -87,6 +93,11 @@
         <button onclick="printMST()">Next</button>
         <br>
         <br>
-        <script src="sketch.js"></script>
-    </div> -->
+        <div class="jscode">
+          <script src="p5.js"></script>
+          <script src="p5.sound.min.js"></script>
+          <script src="PrimNode.js"></script>
+          <script src="Boruvkas.js"></script>
+          <script src="sketchBoru.js"></script>
+    </div>
 </body></html>

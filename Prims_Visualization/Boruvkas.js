@@ -1,136 +1,109 @@
-// Boruvka's algorithm to find Minimum Spanning
-// Tree of a given connected, undirected and weighted graph
-
-// Class to represent a graph
-class Graph {
-	constructor(vertices) {
-		this.V = vertices; // No. of vertices
-		this.graph = []; // default dictionary to store graph
-	}
-
-	// function to add an edge to graph
-	addEdge(u, v, w) {
-		this.graph.push([u, v, w]);
-	}
-
-	// A utility function to find set of an element i
-	// (uses path compression technique)
-	find(parent, i) {
-		if (parent[i] === i) {
-			return i;
-		}
-		return this.find(parent, parent[i]);
-	}
-	
-	// A function that does union of two sets of x and y
-	// (uses union by rank)
-	union(parent, rank, x, y) {
-		const xroot = this.find(parent, x);
-		const yroot = this.find(parent, y);
-
-		// Attach smaller rank tree under root of high rank tree
-		// (Union by Rank)
-		if (rank[xroot] < rank[yroot]) {
-			parent[xroot] = yroot;
-		} else if (rank[xroot] > rank[yroot]) {
-			parent[yroot] = xroot;
-		}
-		
-		// If ranks are same, then make one as root and increment
-		// its rank by one
-		else {
-			parent[yroot] = xroot;
-			rank[xroot] += 1;
-		}
-	}
-
-	//The main function to construct MST using Kruskal's algorithm
-	boruvkaMST() {
-		const parent = [];
-		
-		// An array to store index of the cheapest edge of
-		// subset. It store [u,v,w] for each component
-		const rank = [];
-		const cheapest = [];
-
-		// Initially there are V different trees.
-		// Finally there will be one tree that will be MST
-		let numTrees = this.V;
-		let MSTweight = 0;
-
-		// Create V subsets with single elements
-		for (let node = 0; node < this.V; node++) {
-			parent.push(node);
-			rank.push(0);
-			cheapest[node] = -1;
-		}
-
-		// Keep combining components (or sets) until all
-		// components are not combined into single MST
-		while (numTrees > 1) {
-		
-			// Traverse through all edges and update
-			// cheapest of every component
-			for (let i = 0; i < this.graph.length; i++) {
-			
-				// Find components (or sets) of two corners
-				// of current edge
-				const [u, v, w] = this.graph[i];
-				const set1 = this.find(parent, u);
-				const set2 = this.find(parent, v);
-
-				// If two corners of current edge belong to
-				// same set, ignore current edge. Else check if 
-				// current edge is closer to previous
-				// cheapest edges of set1 and set2
-				if (set1 !== set2) {
-					if (cheapest[set1] === -1 || cheapest[set1][2] > w) {
-						cheapest[set1] = [u, v, w];
-					}
-
-					if (cheapest[set2] === -1 || cheapest[set2][2] > w) {
-						cheapest[set2] = [u, v, w];
-					}
-				}
-			}
-
-			// Consider the above picked cheapest edges and add them
-			// to MST
-			for (let node = 0; node < this.V; node++) {
-			
-				// Check if cheapest for current set exists
-				if (cheapest[node] !== -1) {
-					const [u, v, w] = cheapest[node];
-					const set1 = this.find(parent, u);
-					const set2 = this.find(parent, v);
-
-					if (set1 !== set2) {
-						MSTweight += w;
-						this.union(parent, rank, set1, set2);
-						console.log(`Edge ${u}-${v} with weight ${w} included in MST`);
-						numTrees--;
-					}
-				}
-			}
-
-			for (let node = 0; node < this.V; node++) {
-			
-				// reset cheapest array
-				cheapest[node] = -1;
-			}
-		}
-
-		console.log(`Weight of MST is ${MSTweight}`);
-	}
+let m_component = {};
+function find_component(u) {
+  if (m_component[u] == u) {
+    return u;
+  }
+ // console.log("find_component");
+  return find_component(m_component[u]);
 }
 
-let g = new Graph(4);
-g.addEdge(0, 1, 10);
-g.addEdge(0, 2, 6);
-g.addEdge(0, 3, 5);
-g.addEdge(1, 3, 15);
-g.addEdge(2, 3, 4);
+function set_component(u) {
+  if (m_component[u] == u) {
+    return;
+  } else {
+    for (let k in m_component) {
+      m_component[k] = find_component(k);
+    }
+  }
+ // console.log(" set_component");
 
-g.boruvkaMST();
+}
 
-// This code is contributed by prajwal kandekar
+function union(vertex_size, u, v) {
+  if (vertex_size[u] <= vertex_size[v]) {
+    m_component[u] = v;
+    vertex_size[v] += vertex_size[u];
+    set_component(u);
+  } else if (vertex_size[u] >= vertex_size[v]) {
+    m_component[v] = find_component(u);
+    vertex_size[u] += vertex_size[v];
+    set_component(v);
+  }
+  //console.log("union");
+}
+
+function boruvka(Node_list) {
+  let vertex_size = [];
+  let mst_weight = 0;
+  //let minimum_weight_edge = [];
+  let minimum_weight_edge = Array(Node_list.length).fill([-1, -1, -1]);
+
+  for (let node = 0; node < Node_list.length; node++) {
+    m_component[node] = node;
+    vertex_size.push(1);
+  }
+
+  let num_of_components = Node_list.length;
+  //console.log("---------Forming MST------------");
+
+  while (num_of_components > 1) {
+    for (let i = 0; i < Node_list.length; i++) {
+      const edges = Node_list[i].edges;
+
+      for (let e = 0; e < edges.length; e++) {
+        const { end, weight } = edges[e];
+        const u = i;
+        const v = end.node_label;
+
+        const u_component = find_component(u);
+        const v_component = find_component(v);
+       // Node_list[u].color = "#F96618";
+        if (u_component !== v_component) {
+          if (
+            minimum_weight_edge[u_component] == -1 || minimum_weight_edge[u_component][2] > weight
+          ) {
+            minimum_weight_edge[u_component] = [u, v, weight];
+          }
+          if (
+            minimum_weight_edge[v_component] == -1 ||
+            minimum_weight_edge[v_component][2] > weight
+          ) {
+            minimum_weight_edge[v_component] = [u, v, weight];
+          }
+        }
+      }
+    }
+
+    for (let node = 0; node < Node_list.length; node++) {
+      const [u, v, w] = minimum_weight_edge[node];
+      const u_component = find_component(u);
+      const v_component = find_component(v);
+
+      if (u_component !== v_component) {
+        mst_weight += w;
+        union(vertex_size, u_component, v_component);
+        console.log(`Added edge [${u} - ${v}]\nAdded weight: ${w}\n`);
+         Node_list[u].color = "#F96618";
+        // Node_list[v].color = "#F96618";
+        num_of_components--;
+      }
+    }
+    // Node_list[u].color = "#F96618";
+    minimum_weight_edge = Array(Node_list.length).fill([-1]);
+  }
+
+  console.log("----------------------------------");
+  console.log(
+    `The total weight of the minimal spanning tree is: ${mst_weight}`
+  );
+  return m_component;
+}
+let Node_list = [
+    { node_label: 0, edges: [{ end: { node_label: 1 }, weight: 4 }, { end: { node_label: 2 }, weight: 7 }] },
+    { node_label: 1, edges: [{ end: { node_label: 0 }, weight: 4 }, { end: { node_label: 2 }, weight: 8 }, { end: { node_label: 3 }, weight: 11 }] },
+    { node_label: 2, edges: [{ end: { node_label: 0 }, weight: 7 }, { end: { node_label: 1 }, weight: 8 }, { end: { node_label: 3 }, weight: 2 }, { end: { node_label: 4 }, weight: 5 }] },
+    { node_label: 3, edges: [{ end: { node_label: 1 }, weight: 11 }, { end: { node_label: 2 }, weight: 2 }, { end: { node_label: 4 }, weight: 9 }, { end: { node_label: 5 }, weight: 14 }] },
+    { node_label: 4, edges: [{ end: { node_label: 2 }, weight: 5 }, { end: { node_label: 3 }, weight: 9 }, { end: { node_label: 5 }, weight: 10 }] },
+    { node_label: 5, edges: [{ end: { node_label: 3 }, weight: 14 }, { end: { node_label: 4 }, weight: 10 }] }
+  ];
+  boruvka(Node_list);
